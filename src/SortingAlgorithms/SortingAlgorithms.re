@@ -33,47 +33,93 @@ module Styles = {
 
 let valueBar = (~length) => <div className={Styles.value(length)} />;
 
-let rec insert = (a: list(int), v: int) => {
-  switch (List.length(a)) {
-  | 0 => [v]
-  | 1 => v > List.hd(a) ? [List.hd(a), v] : [v, List.hd(a)]
-  | _ =>
-    v < List.hd(a) ? [v, ...a] : [List.hd(a), ...insert(List.tl(a), v)]
+let rec bubbleSort = s => {
+  let rec _bsort =
+    fun
+    | [x, x2, ...xs] when x > x2 => {
+        let semiSorted = [x2, ..._bsort([x, ...xs])];
+        semiSorted;
+      }
+    | [x, x2, ...xs] => {
+        let semiSorted = [x, ..._bsort([x2, ...xs])];
+        semiSorted;
+      }
+    | s => s;
+  let t = _bsort(s);
+  if (t == s) {
+    t;
+  } else {
+    let bob = bubbleSort(t);
+    bob;
   };
-};
-
-let sort = (a: list(int)) => {
-  List.fold_left(insert, [], a);
-};
-
-type elementWithrecord = {
-  element: ReasonReact.reactElement,
-  length: int,
 };
 
 let rec generateListOfN = (length: int) => {
   length <= 0 ? [] : [length, ...generateListOfN(length - 1)];
 };
 
+type bob = {
+  list: list(int),
+  current: int,
+};
+
+let initialState = {current: 0, list: []};
+
+/* Action declaration */
+type action =
+  | SetList(list(int))
+  | Bob(int);
+
+let reducer = (state, action) => {
+  switch (action) {
+  | SetList(l) => {...state, list: l}
+  | Bob(x) => {...state, current: x}
+  };
+};
+
+let myFunc = (state, dispatch) => {
+  Js.log("myFunc");
+  Js.Global.setTimeout(
+    () => {
+      Js.log("Timeout");
+      let bubbleSorted = bubbleSort(state.list);
+      dispatch(SetList(bubbleSorted));
+    },
+    3000,
+  );
+  ();
+};
+
 [@react.component]
 let make = () => {
-  let (listLength, setListLength) = React.useState(() => 50);
+  let (listLength, setListLength) = React.useState(() => 80);
   let (sorting, setSorting) = React.useState(() => false);
-  let (shuffledList, setShuffledList) = React.useState(() => []);
+  let (state, dispatch) = React.useReducer(reducer, initialState);
+
+  Js.log("@@@@@");
+  Js.log(state);
 
   React.useEffect1(
     () => {
       let newShuffledList = generateListOfN(listLength) |> Belt_List.shuffle;
-      setShuffledList(_ => newShuffledList);
+      dispatch(SetList(newShuffledList));
       None;
     },
     [|listLength|],
   );
 
-  let sortedList = sort(shuffledList);
+  React.useEffect1(
+    () => {
+      switch (sorting) {
+      | true => myFunc(state, dispatch)
+      | _ => ()
+      };
+      None;
+    },
+    [|sorting|],
+  );
 
-  let bars =
-    List.map(x => valueBar(~length=x), sorting ? sortedList : shuffledList);
+  let bars = List.map(x => valueBar(~length=x), state.list);
 
   <div>
     <p> {React.string("Hello!")} </p>
