@@ -1,10 +1,3 @@
-let rec fill = (~element: 'a, ~length: int) =>
-  if (length <= 0) {
-    [];
-  } else {
-    [element, ...fill(~element, ~length=length - 1)];
-  };
-
 module Styles = {
   /* Open the Css module, so we can access the style properties below without prefixing them with Css. */
   open Css;
@@ -23,6 +16,29 @@ module Styles = {
 
   let title = style([fontSize(rem(1.5)), marginBottom(px(10))]);
 
+  let algoContainer =
+    style([
+      display(flexBox),
+      flexDirection(row),
+      alignItems(stretch),
+      marginLeft(px(10)),
+      marginRight(px(10)),
+      height(px(100)),
+      justifyContent(spaceEvenly),
+      overflow(hidden),
+      alignItems(flexEnd),
+    ]);
+
+  let value = length =>
+    style([
+      height(px(length)),
+      display(flexBox),
+      flexDirection(row),
+      alignItems(stretch),
+      backgroundColor(black),
+      width(px(5)),
+    ]);
+
   let actionButton = disabled =>
     style([
       background(disabled ? darkgray : white),
@@ -32,13 +48,19 @@ module Styles = {
     ]);
 };
 
-let bob = () => <div className="value"> {React.string("Hello")} </div>;
+let valueBar = (~length) => <div className={Styles.value(length)} />;
+
+let rec getValueBars = (~length: int) => {
+  let el = valueBar(~length);
+  length <= 0 ? [] : [el, ...getValueBars(~length=length - 1)];
+};
 
 [@react.component]
 let make = () => {
-  let (listLength, setListLength) = React.useState(() => 15);
+  let (listLength, setListLength) = React.useState(() => 50);
 
-  let myList = fill(bob(), listLength);
+  let myList = getValueBars(~length=listLength) |> Belt_List.shuffle;
+
   <div>
     <p> {React.string("Hello!")} </p>
     <p> {React.string(string_of_int(listLength))} </p>
@@ -54,13 +76,9 @@ let make = () => {
     />
     <div>
       <h2> {React.string("Bubble Sort:")} </h2>
-      <div className="algoContainer">
+      <div className=Styles.algoContainer>
         {ReasonReact.array(Array.of_list(myList))}
       </div>
-    </div>
-    <div className=Styles.card>
-      <h1 className=Styles.title> {ReasonReact.string("Hello")} </h1>
-      <button className={Styles.actionButton(false)} />
     </div>
   </div>;
 };

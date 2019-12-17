@@ -4,17 +4,7 @@ var Css = require("bs-css/src/Css.js");
 var $$Array = require("bs-platform/lib/js/array.js");
 var Curry = require("bs-platform/lib/js/curry.js");
 var React = require("react");
-
-function fill(element, length) {
-  if (length <= 0) {
-    return /* [] */0;
-  } else {
-    return /* :: */[
-            element,
-            fill(element, length - 1 | 0)
-          ];
-  }
-}
+var Belt_List = require("bs-platform/lib/js/belt_List.js");
 
 var card = Css.style(/* :: */[
       Css.display(Css.flexBox),
@@ -44,6 +34,57 @@ var title = Css.style(/* :: */[
       ]
     ]);
 
+var algoContainer = Css.style(/* :: */[
+      Css.display(Css.flexBox),
+      /* :: */[
+        Css.flexDirection(Css.row),
+        /* :: */[
+          Css.alignItems(Css.stretch),
+          /* :: */[
+            Css.marginLeft(Css.px(10)),
+            /* :: */[
+              Css.marginRight(Css.px(10)),
+              /* :: */[
+                Css.height(Css.px(100)),
+                /* :: */[
+                  Css.justifyContent(Css.spaceEvenly),
+                  /* :: */[
+                    Css.overflow(Css.hidden),
+                    /* :: */[
+                      Css.alignItems(Css.flexEnd),
+                      /* [] */0
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ]);
+
+function value(length) {
+  return Css.style(/* :: */[
+              Css.height(Css.px(length)),
+              /* :: */[
+                Css.display(Css.flexBox),
+                /* :: */[
+                  Css.flexDirection(Css.row),
+                  /* :: */[
+                    Css.alignItems(Css.stretch),
+                    /* :: */[
+                      Css.backgroundColor(Css.black),
+                      /* :: */[
+                        Css.width(Css.px(5)),
+                        /* [] */0
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]);
+}
+
 function actionButton(disabled) {
   return Css.style(/* :: */[
               Css.background(disabled ? Css.darkgray : Css.white),
@@ -63,22 +104,37 @@ function actionButton(disabled) {
 var Styles = {
   card: card,
   title: title,
+  algoContainer: algoContainer,
+  value: value,
   actionButton: actionButton
 };
 
-function bob(param) {
+function valueBar(length) {
   return React.createElement("div", {
-              className: "value"
-            }, "Hello");
+              className: value(length)
+            });
+}
+
+function getValueBars(length) {
+  var el = valueBar(length);
+  var match = length <= 0;
+  if (match) {
+    return /* [] */0;
+  } else {
+    return /* :: */[
+            el,
+            getValueBars(length - 1 | 0)
+          ];
+  }
 }
 
 function SortingAlgorithms(Props) {
   var match = React.useState((function () {
-          return 15;
+          return 50;
         }));
   var setListLength = match[1];
   var listLength = match[0];
-  var myList = fill(bob(/* () */0), listLength);
+  var myList = Belt_List.shuffle(getValueBars(listLength));
   return React.createElement("div", undefined, React.createElement("p", undefined, "Hello!"), React.createElement("p", undefined, String(listLength)), React.createElement("h1", undefined, "Controls"), React.createElement("p", undefined, "Length of list to sort:"), React.createElement("input", {
                   type: "range",
                   value: String(listLength),
@@ -89,20 +145,14 @@ function SortingAlgorithms(Props) {
                                   }));
                     })
                 }), React.createElement("div", undefined, React.createElement("h2", undefined, "Bubble Sort:"), React.createElement("div", {
-                      className: "algoContainer"
-                    }, $$Array.of_list(myList))), React.createElement("div", {
-                  className: card
-                }, React.createElement("h1", {
-                      className: title
-                    }, "Hello"), React.createElement("button", {
-                      className: actionButton(false)
-                    })));
+                      className: algoContainer
+                    }, $$Array.of_list(myList))));
 }
 
 var make = SortingAlgorithms;
 
-exports.fill = fill;
 exports.Styles = Styles;
-exports.bob = bob;
+exports.valueBar = valueBar;
+exports.getValueBars = getValueBars;
 exports.make = make;
 /* card Not a pure module */
