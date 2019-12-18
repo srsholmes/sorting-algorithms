@@ -46,17 +46,18 @@ var algoContainer = Css.style(/* :: */[
       ]
     ]);
 
-function value(length) {
+function value(length, current) {
+  var match = length === current;
   return Css.style(/* :: */[
               Css.height(Css.px(length)),
               /* :: */[
-                Css.display(Css.flexBox),
+                Css.backgroundColor(match ? Css.red : Css.blue),
                 /* :: */[
-                  Css.flexDirection(Css.row),
+                  Css.display(Css.flexBox),
                   /* :: */[
-                    Css.alignItems(Css.stretch),
+                    Css.flexDirection(Css.row),
                     /* :: */[
-                      Css.backgroundColor(Css.black),
+                      Css.alignItems(Css.stretch),
                       /* :: */[
                         Css.width(Css.px(5)),
                         /* [] */0
@@ -85,12 +86,6 @@ var Styles = {
   value: value,
   sortButton: sortButton
 };
-
-function valueBar(length) {
-  return React.createElement("div", {
-              className: value(length)
-            });
-}
 
 function bubbleSort(_s) {
   while(true) {
@@ -170,10 +165,8 @@ function reducer(state, action) {
 function myFunc(state, dispatch) {
   console.log("myFunc");
   setTimeout((function (param) {
-          console.log("Timeout");
-          var bubbleSorted = bubbleSort(state[/* list */0]);
-          return Curry._1(dispatch, /* SetList */Block.__(0, [bubbleSorted]));
-        }), 3000);
+          return Curry._1(dispatch, /* SetCurrent */Block.__(1, [state[/* current */1] + 1 | 0]));
+        }), 200);
   return /* () */0;
 }
 
@@ -191,20 +184,28 @@ function SortingAlgorithms(Props) {
   var match$2 = React.useReducer(reducer, initialState);
   var dispatch = match$2[1];
   var state = match$2[0];
-  console.log("@@@@@");
-  console.log(state);
   React.useEffect((function () {
           var newShuffledList = Belt_List.shuffle(generateListOfN(listLength));
           Curry._1(dispatch, /* SetList */Block.__(0, [newShuffledList]));
           return ;
         }), /* array */[listLength]);
   React.useEffect((function () {
+          console.log("Use effect");
           if (sorting) {
             myFunc(state, dispatch);
           }
           return ;
-        }), /* array */[sorting]);
-  var bars = List.map(valueBar, state[/* list */0]);
+        }), /* tuple */[
+        sorting,
+        state
+      ]);
+  console.log(state[/* current */1]);
+  var bars = List.map((function (x) {
+          var length = x;
+          return React.createElement("div", {
+                      className: value(length, state[/* current */1])
+                    });
+        }), state[/* list */0]);
   return React.createElement("div", undefined, React.createElement("p", undefined, "Hello!"), React.createElement("p", undefined, String(listLength)), React.createElement("h1", undefined, "Controls"), React.createElement("p", undefined, "Length of list to sort:"), React.createElement("input", {
                   type: "range",
                   value: String(listLength),
@@ -229,7 +230,6 @@ function SortingAlgorithms(Props) {
 var make = SortingAlgorithms;
 
 exports.Styles = Styles;
-exports.valueBar = valueBar;
 exports.bubbleSort = bubbleSort;
 exports.generateListOfN = generateListOfN;
 exports.initialState = initialState;

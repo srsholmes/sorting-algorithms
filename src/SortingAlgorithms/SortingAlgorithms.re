@@ -17,21 +17,19 @@ module Styles = {
       alignItems(flexEnd),
     ]);
 
-  let value = length =>
+  let value = (length, current) =>
     style([
       height(px(length)),
+      backgroundColor(length === current ? red : blue),
       display(flexBox),
       flexDirection(row),
       alignItems(stretch),
-      backgroundColor(black),
       width(px(5)),
     ]);
 
   let sortButton =
     style([color(black), borderRadius(px(3)), marginTop(px(20))]);
 };
-
-let valueBar = (~length) => <div className={Styles.value(length)} />;
 
 let rec bubbleSort = s => {
   let rec _bsort =
@@ -68,25 +66,19 @@ let initialState = {current: 0, list: []};
 /* Action declaration */
 type action =
   | SetList(list(int))
-  | Bob(int);
+  | SetCurrent(int);
 
 let reducer = (state, action) => {
   switch (action) {
   | SetList(l) => {...state, list: l}
-  | Bob(x) => {...state, current: x}
+  | SetCurrent(x) => {...state, current: x}
   };
 };
 
 let myFunc = (state, dispatch) => {
   Js.log("myFunc");
-  Js.Global.setTimeout(
-    () => {
-      Js.log("Timeout");
-      let bubbleSorted = bubbleSort(state.list);
-      dispatch(SetList(bubbleSorted));
-    },
-    3000,
-  );
+
+  Js.Global.setTimeout(() => dispatch(SetCurrent(state.current + 1)), 200);
   ();
 };
 
@@ -95,9 +87,6 @@ let make = () => {
   let (listLength, setListLength) = React.useState(() => 80);
   let (sorting, setSorting) = React.useState(() => false);
   let (state, dispatch) = React.useReducer(reducer, initialState);
-
-  Js.log("@@@@@");
-  Js.log(state);
 
   React.useEffect1(
     () => {
@@ -108,16 +97,22 @@ let make = () => {
     [|listLength|],
   );
 
-  React.useEffect1(
+  React.useEffect2(
     () => {
+      Js.log("Use effect");
       switch (sorting) {
       | true => myFunc(state, dispatch)
       | _ => ()
       };
       None;
     },
-    [|sorting|],
+    (sorting, state),
   );
+
+  Js.log(state.current);
+
+  let valueBar = (~length) =>
+    <div className={Styles.value(length, state.current)} />;
 
   let bars = List.map(x => valueBar(~length=x), state.list);
 
