@@ -89,43 +89,34 @@ let sleep = ms => {
 };
 
 let myFunc = (state, dispatch) => {
-  let rec _bsort =
-    fun
-    | [x, x2, ...xs] when x > x2 => {
-        let semiSorted = [x2, ..._bsort([x, ...xs])];
-        semiSorted;
-      }
-    | [x, x2, ...xs] => {
-        let semiSorted = [x, ..._bsort([x2, ...xs])];
-        semiSorted;
-      }
-    | s => s;
+  let rec r_bubble_sort = l => {
+    let rec try_swap =
+      fun
+      | [] => (false, [])
+      | [a] => (false, [a])
+      | [a, b, ...tail] =>
+        if (a > b) {
+          (true, [b, ...snd(try_swap([a, ...tail]))]);
+        } else {
+          let (swapped, newlist) = try_swap([b, ...tail]);
+          (swapped, [a, ...newlist]);
+        };
 
-  //  sleep(100)
-  //  |> Js.Promise.then_(value => {
-  //       Js.log("inside the promise");
-  //       let semiSortedList = _bsort(state.list);
-  //       if (semiSortedList == state.list && state.sorting == true) {
-  //         dispatch(SetSorting(false));
-  //         dispatch(SetList(state.list));
-  //       } else {
-  //         dispatch(SetList(semiSortedList));
-  //       };
-  //       Js.Promise.resolve(value);
-  //     });
+    try_swap(l);
+  };
 
-  Js.Global.setTimeout(
-    () => {
-      let semiSortedList = _bsort(state.list);
-      if (semiSortedList == state.list && state.sorting == true) {
-        dispatch(SetSorting(false));
-        dispatch(SetList(state.list));
-      } else {
-        dispatch(SetList(semiSortedList));
-      };
-    },
-    500,
-  );
+  sleep(100)
+  |> Js.Promise.then_(value => {
+       Js.log("inside the promise");
+       let (swapped, newlist) = r_bubble_sort(state.list);
+       if (!swapped && state.sorting == true) {
+         dispatch(SetSorting(false));
+         dispatch(SetList(state.list));
+       } else {
+         dispatch(SetList(newlist));
+       };
+       Js.Promise.resolve(value);
+     });
 
   ();
 };

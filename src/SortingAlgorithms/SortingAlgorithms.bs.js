@@ -184,46 +184,67 @@ function sleep(ms) {
 }
 
 function myFunc(state, dispatch) {
-  var _bsort = function (s) {
-    if (s) {
-      var match = s[1];
-      if (match) {
-        var xs = match[1];
-        var x2 = match[0];
-        var x = s[0];
-        if (Caml_obj.caml_greaterthan(x, x2)) {
-          return /* :: */[
-                  x2,
-                  _bsort(/* :: */[
-                        x,
-                        xs
-                      ])
-                ];
+  var r_bubble_sort = function (l) {
+    var try_swap = function (param) {
+      if (param) {
+        var match = param[1];
+        var a = param[0];
+        if (match) {
+          var tail = match[1];
+          var b = match[0];
+          if (Caml_obj.caml_greaterthan(a, b)) {
+            return /* tuple */[
+                    true,
+                    /* :: */[
+                      b,
+                      try_swap(/* :: */[
+                              a,
+                              tail
+                            ])[1]
+                    ]
+                  ];
+          } else {
+            var match$1 = try_swap(/* :: */[
+                  b,
+                  tail
+                ]);
+            return /* tuple */[
+                    match$1[0],
+                    /* :: */[
+                      a,
+                      match$1[1]
+                    ]
+                  ];
+          }
         } else {
-          return /* :: */[
-                  x,
-                  _bsort(/* :: */[
-                        x2,
-                        xs
-                      ])
+          return /* tuple */[
+                  false,
+                  /* :: */[
+                    a,
+                    /* [] */0
+                  ]
                 ];
         }
       } else {
-        return s;
+        return /* tuple */[
+                false,
+                /* [] */0
+              ];
       }
-    } else {
-      return s;
-    }
+    };
+    return try_swap(l);
   };
-  setTimeout((function (param) {
-          var semiSortedList = _bsort(state[/* list */0]);
-          if (Caml_obj.caml_equal(semiSortedList, state[/* list */0]) && state[/* sorting */2] === true) {
+  sleep(100).then((function (value) {
+          console.log("inside the promise");
+          var match = r_bubble_sort(state[/* list */0]);
+          if (!match[0] && state[/* sorting */2] === true) {
             Curry._1(dispatch, /* SetSorting */Block.__(2, [false]));
-            return Curry._1(dispatch, /* SetList */Block.__(0, [state[/* list */0]]));
+            Curry._1(dispatch, /* SetList */Block.__(0, [state[/* list */0]]));
           } else {
-            return Curry._1(dispatch, /* SetList */Block.__(0, [semiSortedList]));
+            Curry._1(dispatch, /* SetList */Block.__(0, [match[1]]));
           }
-        }), 500);
+          return Promise.resolve(value);
+        }));
   return /* () */0;
 }
 
