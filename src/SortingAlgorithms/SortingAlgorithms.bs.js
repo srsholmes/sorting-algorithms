@@ -145,28 +145,85 @@ function generateListOfN(length) {
 
 var initialState = /* record */[
   /* list : [] */0,
-  /* current */0
+  /* current */0,
+  /* sorting */false
 ];
 
 function reducer(state, action) {
-  if (action.tag) {
-    return /* record */[
-            /* list */state[/* list */0],
-            /* current */action[0]
-          ];
-  } else {
-    return /* record */[
-            /* list */action[0],
-            /* current */state[/* current */1]
-          ];
+  switch (action.tag | 0) {
+    case /* SetList */0 :
+        return /* record */[
+                /* list */action[0],
+                /* current */state[/* current */1],
+                /* sorting */state[/* sorting */2]
+              ];
+    case /* SetCurrent */1 :
+        return /* record */[
+                /* list */state[/* list */0],
+                /* current */action[0],
+                /* sorting */state[/* sorting */2]
+              ];
+    case /* SetSorting */2 :
+        return /* record */[
+                /* list */state[/* list */0],
+                /* current */state[/* current */1],
+                /* sorting */action[0]
+              ];
+    
   }
 }
 
+function sleep(ms) {
+  return new Promise((function (resolve, reject) {
+                console.log("sksksk");
+                setTimeout((function (param) {
+                        return resolve(true);
+                      }), ms);
+                return /* () */0;
+              }));
+}
+
 function myFunc(state, dispatch) {
-  console.log("myFunc");
+  var _bsort = function (s) {
+    if (s) {
+      var match = s[1];
+      if (match) {
+        var xs = match[1];
+        var x2 = match[0];
+        var x = s[0];
+        if (Caml_obj.caml_greaterthan(x, x2)) {
+          return /* :: */[
+                  x2,
+                  _bsort(/* :: */[
+                        x,
+                        xs
+                      ])
+                ];
+        } else {
+          return /* :: */[
+                  x,
+                  _bsort(/* :: */[
+                        x2,
+                        xs
+                      ])
+                ];
+        }
+      } else {
+        return s;
+      }
+    } else {
+      return s;
+    }
+  };
   setTimeout((function (param) {
-          return Curry._1(dispatch, /* SetCurrent */Block.__(1, [state[/* current */1] + 1 | 0]));
-        }), 200);
+          var semiSortedList = _bsort(state[/* list */0]);
+          if (Caml_obj.caml_equal(semiSortedList, state[/* list */0]) && state[/* sorting */2] === true) {
+            Curry._1(dispatch, /* SetSorting */Block.__(2, [false]));
+            return Curry._1(dispatch, /* SetList */Block.__(0, [state[/* list */0]]));
+          } else {
+            return Curry._1(dispatch, /* SetList */Block.__(0, [semiSortedList]));
+          }
+        }), 500);
   return /* () */0;
 }
 
@@ -176,30 +233,21 @@ function SortingAlgorithms(Props) {
         }));
   var setListLength = match[1];
   var listLength = match[0];
-  var match$1 = React.useState((function () {
-          return false;
-        }));
-  var setSorting = match$1[1];
-  var sorting = match$1[0];
-  var match$2 = React.useReducer(reducer, initialState);
-  var dispatch = match$2[1];
-  var state = match$2[0];
+  var match$1 = React.useReducer(reducer, initialState);
+  var dispatch = match$1[1];
+  var state = match$1[0];
   React.useEffect((function () {
           var newShuffledList = Belt_List.shuffle(generateListOfN(listLength));
           Curry._1(dispatch, /* SetList */Block.__(0, [newShuffledList]));
           return ;
         }), /* array */[listLength]);
   React.useEffect((function () {
-          console.log("Use effect");
-          if (sorting) {
+          var match = state[/* sorting */2];
+          if (match) {
             myFunc(state, dispatch);
           }
           return ;
-        }), /* tuple */[
-        sorting,
-        state
-      ]);
-  console.log(state[/* current */1]);
+        }), /* array */[state]);
   var bars = List.map((function (x) {
           var length = x;
           return React.createElement("div", {
@@ -220,9 +268,7 @@ function SortingAlgorithms(Props) {
                     }, $$Array.of_list(bars)), React.createElement("button", {
                       className: sortButton,
                       onClick: (function (param) {
-                          return Curry._1(setSorting, (function (param) {
-                                        return !sorting;
-                                      }));
+                          return Curry._1(dispatch, /* SetSorting */Block.__(2, [!state[/* sorting */2]]));
                         })
                     }, "Start sorting:")));
 }
@@ -234,6 +280,7 @@ exports.bubbleSort = bubbleSort;
 exports.generateListOfN = generateListOfN;
 exports.initialState = initialState;
 exports.reducer = reducer;
+exports.sleep = sleep;
 exports.myFunc = myFunc;
 exports.make = make;
 /* title Not a pure module */

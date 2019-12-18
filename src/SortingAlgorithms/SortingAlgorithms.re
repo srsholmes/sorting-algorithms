@@ -59,33 +59,80 @@ let rec generateListOfN = (length: int) => {
 type bob = {
   list: list(int),
   current: int,
+  sorting: bool,
 };
 
-let initialState = {current: 0, list: []};
+let initialState = {current: 0, list: [], sorting: false};
 
 /* Action declaration */
 type action =
   | SetList(list(int))
-  | SetCurrent(int);
+  | SetCurrent(int)
+  | SetSorting(bool);
 
 let reducer = (state, action) => {
   switch (action) {
   | SetList(l) => {...state, list: l}
   | SetCurrent(x) => {...state, current: x}
+  | SetSorting(x) => {...state, sorting: x}
   };
 };
 
-let myFunc = (state, dispatch) => {
-  Js.log("myFunc");
+let sleep = ms => {
+  let promise =
+    Js.Promise.make((~resolve, ~reject) => {
+      Js.log("sksksk");
+      Js.Global.setTimeout(() => resolve(. true), ms);
+      ();
+    });
+  promise;
+};
 
-  Js.Global.setTimeout(() => dispatch(SetCurrent(state.current + 1)), 200);
+let myFunc = (state, dispatch) => {
+  let rec _bsort =
+    fun
+    | [x, x2, ...xs] when x > x2 => {
+        let semiSorted = [x2, ..._bsort([x, ...xs])];
+        semiSorted;
+      }
+    | [x, x2, ...xs] => {
+        let semiSorted = [x, ..._bsort([x2, ...xs])];
+        semiSorted;
+      }
+    | s => s;
+
+  //  sleep(100)
+  //  |> Js.Promise.then_(value => {
+  //       Js.log("inside the promise");
+  //       let semiSortedList = _bsort(state.list);
+  //       if (semiSortedList == state.list && state.sorting == true) {
+  //         dispatch(SetSorting(false));
+  //         dispatch(SetList(state.list));
+  //       } else {
+  //         dispatch(SetList(semiSortedList));
+  //       };
+  //       Js.Promise.resolve(value);
+  //     });
+
+  Js.Global.setTimeout(
+    () => {
+      let semiSortedList = _bsort(state.list);
+      if (semiSortedList == state.list && state.sorting == true) {
+        dispatch(SetSorting(false));
+        dispatch(SetList(state.list));
+      } else {
+        dispatch(SetList(semiSortedList));
+      };
+    },
+    500,
+  );
+
   ();
 };
 
 [@react.component]
 let make = () => {
   let (listLength, setListLength) = React.useState(() => 80);
-  let (sorting, setSorting) = React.useState(() => false);
   let (state, dispatch) = React.useReducer(reducer, initialState);
 
   React.useEffect1(
@@ -97,19 +144,16 @@ let make = () => {
     [|listLength|],
   );
 
-  React.useEffect2(
+  React.useEffect1(
     () => {
-      Js.log("Use effect");
-      switch (sorting) {
+      switch (state.sorting) {
       | true => myFunc(state, dispatch)
       | _ => ()
       };
       None;
     },
-    (sorting, state),
+    [|state|],
   );
-
-  Js.log(state.current);
 
   let valueBar = (~length) =>
     <div className={Styles.value(length, state.current)} />;
@@ -135,7 +179,8 @@ let make = () => {
         {ReasonReact.array(Array.of_list(bars))}
       </div>
       <button
-        className=Styles.sortButton onClick={_ => setSorting(_ => !sorting)}>
+        className=Styles.sortButton
+        onClick={_ => dispatch(SetSorting(!state.sorting))}>
         {React.string("Start sorting:")}
       </button>
     </div>
