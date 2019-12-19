@@ -76,6 +76,16 @@ function unwrapElement(param) {
   }
 }
 
+function getClassList(item) {
+  return item.classList;
+}
+
+function toggleClasses(newClass, oldClass, classList) {
+  console.log(classList);
+  classList.add(newClass);
+  return /* () */0;
+}
+
 function myFunc(state, dispatch) {
   var r_bubble_sort = function (l) {
     var try_swap = function (param) {
@@ -87,7 +97,7 @@ function myFunc(state, dispatch) {
           var b = match[0];
           if (Caml_obj.caml_greaterthan(a, b) && ben[0]) {
             ben[0] = false;
-            unwrapElement(Caml_option.nullable_to_opt(document.querySelector(" .bar-" + (String(a) + "")))).setAttribute("style", "background-color: red");
+            toggleClasses("current", "compared", Caml_option.nullable_to_opt(document.querySelector(" .bar-" + (String(a) + ""))).classList);
             return /* tuple */[
                     true,
                     /* :: */[
@@ -167,7 +177,7 @@ function SortingAlgorithms(Props) {
   var bars = List.map((function (x) {
           var length = x;
           return React.createElement("div", {
-                      className: Styles$ReasonReactExamples.Styles.value(length) + (" bar-" + String(length))
+                      className: Styles$ReasonReactExamples.Styles.value(length) + (" bar bar-" + String(length))
                     });
         }), state[/* list */0]);
   return React.createElement("div", undefined, React.createElement("p", undefined, "Hello!"), React.createElement("p", undefined, String(listLength)), React.createElement("h1", undefined, "Controls"), React.createElement("p", undefined, "Length of list to sort:"), React.createElement("input", {
@@ -197,6 +207,8 @@ exports.initialState = initialState;
 exports.reducer = reducer;
 exports.ben = ben;
 exports.unwrapElement = unwrapElement;
+exports.getClassList = getClassList;
+exports.toggleClasses = toggleClasses;
 exports.myFunc = myFunc;
 exports.make = make;
 /* react Not a pure module */

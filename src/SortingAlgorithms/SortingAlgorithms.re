@@ -44,6 +44,16 @@ let unwrapElement =
   | Some(v) => v
   | None => raise(Invalid_argument("Passed none to unwrap"));
 
+external asDomElement: 'a => Dom.element = "%identity";
+
+let getClassList = item => item |> Element.classList;
+
+let toggleClasses = (newClass, oldClass, classList) => {
+  Js.log(classList);
+  DomTokenList.add(newClass, classList);
+  //  DomTokenList.remove(oldClass, classList);
+};
+
 let myFunc = (state, dispatch) => {
   let rec r_bubble_sort = l => {
     let rec try_swap =
@@ -53,18 +63,30 @@ let myFunc = (state, dispatch) => {
       | [a, b, ...tail] =>
         if (a > b && ben^) {
           ben := false;
+
+          // Maybe set class of a and b, and then remove class on the else
           document
           |> Document.querySelector({j| .bar-$(a)|j})
-          |> unwrapElement
-          |> Element.setAttribute("style", "background-color: red");
+          |> asDomElement
+          //          |> unwrapElement
+          //          |> Element.setAttribute("style", "background-color: red");
+          |> getClassList
+          |> toggleClasses("current", "compared"); // CSS classes wont work as when the array gets re-renderd they will be wiped out by styled components / react
 
           //          document
           //          |> Document.querySelector({j| .bar-$(b)|j})
           //          |> unwrapElement
-          //          |> Element.setAttribute("style", "background-color: green");
+          //          |> getClassList
+          //          |> toggleClasses("current", "compare");
 
           (true, [b, ...snd(try_swap([a, ...tail]))]);
         } else {
+          //          document
+          //          |> Document.querySelector(".current")
+          //          |> unwrapElement
+          //          |> getClassList
+          //          |> toggleClasses("current", "compared");
+
           let (swapped, newlist) = try_swap([b, ...tail]);
           (swapped, [a, ...newlist]);
         };
@@ -115,7 +137,9 @@ let make = () => {
 
   let valueBar = (~length) =>
     <div
-      className={Styles.value(length) ++ " bar-" ++ string_of_int(length)}
+      className={
+        Styles.value(length) ++ " bar bar-" ++ string_of_int(length)
+      }
     />;
 
   let bars = List.map(x => valueBar(~length=x), state.list);
