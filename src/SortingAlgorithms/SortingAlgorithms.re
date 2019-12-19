@@ -1,59 +1,18 @@
-module Styles = {
-  /* Open the Css module, so we can access the style properties below without prefixing them with Css. */
-  open Css;
-
-  let title = style([fontSize(rem(1.5)), marginBottom(px(10))]);
-
-  let algoContainer =
-    style([
-      display(flexBox),
-      flexDirection(row),
-      alignItems(stretch),
-      marginLeft(px(10)),
-      marginRight(px(10)),
-      height(px(100)),
-      justifyContent(spaceEvenly),
-      overflow(hidden),
-      alignItems(flexEnd),
-    ]);
-
-  let value = (length, current) =>
-    style([
-      height(px(length)),
-      backgroundColor(length === current ? red : blue),
-      display(flexBox),
-      flexDirection(row),
-      alignItems(stretch),
-      width(px(5)),
-    ]);
-
-  let sortButton =
-    style([color(black), borderRadius(px(3)), marginTop(px(20))]);
-};
-
-let rec bubbleSort = s => {
-  let rec _bsort =
-    fun
-    | [x, x2, ...xs] when x > x2 => {
-        let semiSorted = [x2, ..._bsort([x, ...xs])];
-        semiSorted;
-      }
-    | [x, x2, ...xs] => {
-        let semiSorted = [x, ..._bsort([x2, ...xs])];
-        semiSorted;
-      }
-    | s => s;
-  let t = _bsort(s);
-  if (t == s) {
-    t;
-  } else {
-    let bob = bubbleSort(t);
-    bob;
-  };
-};
+open Webapi.Dom;
+open Styles;
 
 let rec generateListOfN = (length: int) => {
   length <= 0 ? [] : [length, ...generateListOfN(length - 1)];
+};
+
+let sleep = ms => {
+  let promise =
+    Js.Promise.make((~resolve, ~reject) => {
+      Js.log("sksksk");
+      Js.Global.setTimeout(() => resolve(. true), ms);
+      ();
+    });
+  promise;
 };
 
 type bob = {
@@ -78,15 +37,12 @@ let reducer = (state, action) => {
   };
 };
 
-let sleep = ms => {
-  let promise =
-    Js.Promise.make((~resolve, ~reject) => {
-      Js.log("sksksk");
-      Js.Global.setTimeout(() => resolve(. true), ms);
-      ();
-    });
-  promise;
-};
+let ben = ref(false);
+
+let unwrapElement =
+  fun
+  | Some(v) => v
+  | None => raise(Invalid_argument("Passed none to unwrap"));
 
 let myFunc = (state, dispatch) => {
   let rec r_bubble_sort = l => {
@@ -95,7 +51,18 @@ let myFunc = (state, dispatch) => {
       | [] => (false, [])
       | [a] => (false, [a])
       | [a, b, ...tail] =>
-        if (a > b) {
+        if (a > b && ben^) {
+          ben := false;
+          document
+          |> Document.querySelector({j| .bar-$(a)|j})
+          |> unwrapElement
+          |> Element.setAttribute("style", "background-color: red");
+
+          //          document
+          //          |> Document.querySelector({j| .bar-$(b)|j})
+          //          |> unwrapElement
+          //          |> Element.setAttribute("style", "background-color: green");
+
           (true, [b, ...snd(try_swap([a, ...tail]))]);
         } else {
           let (swapped, newlist) = try_swap([b, ...tail]);
@@ -105,9 +72,9 @@ let myFunc = (state, dispatch) => {
     try_swap(l);
   };
 
-  sleep(100)
+  sleep(50)
   |> Js.Promise.then_(value => {
-       Js.log("inside the promise");
+       ben := true;
        let (swapped, newlist) = r_bubble_sort(state.list);
        if (!swapped && state.sorting == true) {
          dispatch(SetSorting(false));
@@ -147,7 +114,9 @@ let make = () => {
   );
 
   let valueBar = (~length) =>
-    <div className={Styles.value(length, state.current)} />;
+    <div
+      className={Styles.value(length) ++ " bar-" ++ string_of_int(length)}
+    />;
 
   let bars = List.map(x => valueBar(~length=x), state.list);
 

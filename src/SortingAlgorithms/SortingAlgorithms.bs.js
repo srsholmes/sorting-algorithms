@@ -1,6 +1,5 @@
 'use strict';
 
-var Css = require("bs-css/src/Css.js");
 var List = require("bs-platform/lib/js/list.js");
 var $$Array = require("bs-platform/lib/js/array.js");
 var Block = require("bs-platform/lib/js/block.js");
@@ -8,128 +7,9 @@ var Curry = require("bs-platform/lib/js/curry.js");
 var React = require("react");
 var Caml_obj = require("bs-platform/lib/js/caml_obj.js");
 var Belt_List = require("bs-platform/lib/js/belt_List.js");
-
-var title = Css.style(/* :: */[
-      Css.fontSize(Css.rem(1.5)),
-      /* :: */[
-        Css.marginBottom(Css.px(10)),
-        /* [] */0
-      ]
-    ]);
-
-var algoContainer = Css.style(/* :: */[
-      Css.display(Css.flexBox),
-      /* :: */[
-        Css.flexDirection(Css.row),
-        /* :: */[
-          Css.alignItems(Css.stretch),
-          /* :: */[
-            Css.marginLeft(Css.px(10)),
-            /* :: */[
-              Css.marginRight(Css.px(10)),
-              /* :: */[
-                Css.height(Css.px(100)),
-                /* :: */[
-                  Css.justifyContent(Css.spaceEvenly),
-                  /* :: */[
-                    Css.overflow(Css.hidden),
-                    /* :: */[
-                      Css.alignItems(Css.flexEnd),
-                      /* [] */0
-                    ]
-                  ]
-                ]
-              ]
-            ]
-          ]
-        ]
-      ]
-    ]);
-
-function value(length, current) {
-  var match = length === current;
-  return Css.style(/* :: */[
-              Css.height(Css.px(length)),
-              /* :: */[
-                Css.backgroundColor(match ? Css.red : Css.blue),
-                /* :: */[
-                  Css.display(Css.flexBox),
-                  /* :: */[
-                    Css.flexDirection(Css.row),
-                    /* :: */[
-                      Css.alignItems(Css.stretch),
-                      /* :: */[
-                        Css.width(Css.px(5)),
-                        /* [] */0
-                      ]
-                    ]
-                  ]
-                ]
-              ]
-            ]);
-}
-
-var sortButton = Css.style(/* :: */[
-      Css.color(Css.black),
-      /* :: */[
-        Css.borderRadius(Css.px(3)),
-        /* :: */[
-          Css.marginTop(Css.px(20)),
-          /* [] */0
-        ]
-      ]
-    ]);
-
-var Styles = {
-  title: title,
-  algoContainer: algoContainer,
-  value: value,
-  sortButton: sortButton
-};
-
-function bubbleSort(_s) {
-  while(true) {
-    var s = _s;
-    var _bsort = function (s) {
-      if (s) {
-        var match = s[1];
-        if (match) {
-          var xs = match[1];
-          var x2 = match[0];
-          var x = s[0];
-          if (Caml_obj.caml_greaterthan(x, x2)) {
-            return /* :: */[
-                    x2,
-                    _bsort(/* :: */[
-                          x,
-                          xs
-                        ])
-                  ];
-          } else {
-            return /* :: */[
-                    x,
-                    _bsort(/* :: */[
-                          x2,
-                          xs
-                        ])
-                  ];
-          }
-        } else {
-          return s;
-        }
-      } else {
-        return s;
-      }
-    };
-    var t = _bsort(s);
-    if (Caml_obj.caml_equal(t, s)) {
-      return t;
-    } else {
-      _s = t;
-      continue ;
-    }
-  };
-}
+var Caml_option = require("bs-platform/lib/js/caml_option.js");
+var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
+var Styles$ReasonReactExamples = require("../Styles.bs.js");
 
 function generateListOfN(length) {
   var match = length <= 0;
@@ -141,6 +21,16 @@ function generateListOfN(length) {
             generateListOfN(length - 1 | 0)
           ];
   }
+}
+
+function sleep(ms) {
+  return new Promise((function (resolve, reject) {
+                console.log("sksksk");
+                setTimeout((function (param) {
+                        return resolve(true);
+                      }), ms);
+                return /* () */0;
+              }));
 }
 
 var initialState = /* record */[
@@ -173,14 +63,17 @@ function reducer(state, action) {
   }
 }
 
-function sleep(ms) {
-  return new Promise((function (resolve, reject) {
-                console.log("sksksk");
-                setTimeout((function (param) {
-                        return resolve(true);
-                      }), ms);
-                return /* () */0;
-              }));
+var ben = /* record */[/* contents */false];
+
+function unwrapElement(param) {
+  if (param !== undefined) {
+    return Caml_option.valFromOption(param);
+  } else {
+    throw [
+          Caml_builtin_exceptions.invalid_argument,
+          "Passed none to unwrap"
+        ];
+  }
 }
 
 function myFunc(state, dispatch) {
@@ -192,7 +85,9 @@ function myFunc(state, dispatch) {
         if (match) {
           var tail = match[1];
           var b = match[0];
-          if (Caml_obj.caml_greaterthan(a, b)) {
+          if (Caml_obj.caml_greaterthan(a, b) && ben[0]) {
+            ben[0] = false;
+            unwrapElement(Caml_option.nullable_to_opt(document.querySelector(" .bar-" + (String(a) + "")))).setAttribute("style", "background-color: red");
             return /* tuple */[
                     true,
                     /* :: */[
@@ -234,8 +129,8 @@ function myFunc(state, dispatch) {
     };
     return try_swap(l);
   };
-  sleep(100).then((function (value) {
-          console.log("inside the promise");
+  sleep(50).then((function (value) {
+          ben[0] = true;
           var match = r_bubble_sort(state[/* list */0]);
           if (!match[0] && state[/* sorting */2] === true) {
             Curry._1(dispatch, /* SetSorting */Block.__(2, [false]));
@@ -272,7 +167,7 @@ function SortingAlgorithms(Props) {
   var bars = List.map((function (x) {
           var length = x;
           return React.createElement("div", {
-                      className: value(length, state[/* current */1])
+                      className: Styles$ReasonReactExamples.Styles.value(length) + (" bar-" + String(length))
                     });
         }), state[/* list */0]);
   return React.createElement("div", undefined, React.createElement("p", undefined, "Hello!"), React.createElement("p", undefined, String(listLength)), React.createElement("h1", undefined, "Controls"), React.createElement("p", undefined, "Length of list to sort:"), React.createElement("input", {
@@ -285,9 +180,9 @@ function SortingAlgorithms(Props) {
                                   }));
                     })
                 }), React.createElement("div", undefined, React.createElement("h2", undefined, "Bubble Sort:"), React.createElement("div", {
-                      className: algoContainer
+                      className: Styles$ReasonReactExamples.Styles.algoContainer
                     }, $$Array.of_list(bars)), React.createElement("button", {
-                      className: sortButton,
+                      className: Styles$ReasonReactExamples.Styles.sortButton,
                       onClick: (function (param) {
                           return Curry._1(dispatch, /* SetSorting */Block.__(2, [!state[/* sorting */2]]));
                         })
@@ -296,12 +191,12 @@ function SortingAlgorithms(Props) {
 
 var make = SortingAlgorithms;
 
-exports.Styles = Styles;
-exports.bubbleSort = bubbleSort;
 exports.generateListOfN = generateListOfN;
+exports.sleep = sleep;
 exports.initialState = initialState;
 exports.reducer = reducer;
-exports.sleep = sleep;
+exports.ben = ben;
+exports.unwrapElement = unwrapElement;
 exports.myFunc = myFunc;
 exports.make = make;
-/* title Not a pure module */
+/* react Not a pure module */
