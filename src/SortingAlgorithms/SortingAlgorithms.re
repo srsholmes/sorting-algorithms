@@ -38,63 +38,67 @@ let reducer = (state, action) => {
 };
 
 let ben = ref(false);
+let currentRef = ref(document |> Document.querySelector("body"));
+let compareRef = ref(document |> Document.querySelector("body"));
 
 let unwrapElement =
   fun
   | Some(v) => v
   | None => raise(Invalid_argument("Passed none to unwrap"));
 
-external asDomElement: 'a => Dom.element = "%identity";
-
-let getClassList = item => item |> Element.classList;
-
-let toggleClasses = (newClass, oldClass, classList) => {
-  Js.log(classList);
-  DomTokenList.add(newClass, classList);
-  //  DomTokenList.remove(oldClass, classList);
-};
-
 let myFunc = (state, dispatch) => {
   let rec r_bubble_sort = l => {
     let rec try_swap =
       fun
-      | [] => (false, [])
-      | [a] => (false, [a])
-      | [a, b, ...tail] =>
-        if (a > b && ben^) {
-          ben := false;
+      | [] => {
+          (
+            //          currentRef^ |> unwrapElement |> Element.removeAttribute("style");
+            false,
+            [],
+          );
+        }
+      | [a] => {
+          (
+            //          currentRef^ |> unwrapElement |> Element.removeAttribute("style");
+            false,
+            [a],
+          );
+        }
+      | [a, b, ...tail] => {
+          //          currentRef^ |> unwrapElement |> Element.removeAttribute("style");
+          compareRef^ |> unwrapElement |> Element.removeAttribute("style");
 
-          // Maybe set class of a and b, and then remove class on the else
-          document
-          |> Document.querySelector({j| .bar-$(a)|j})
-          |> asDomElement
-          //          |> unwrapElement
-          //          |> Element.setAttribute("style", "background-color: red");
-          |> getClassList
-          |> toggleClasses("current", "compared"); // CSS classes wont work as when the array gets re-renderd they will be wiped out by styled components / react
+          if (a > b && ben^) {
+            ben := false;
+            let current =
+              document |> Document.querySelector({j| .bar-$(a)|j});
 
-          //          document
-          //          |> Document.querySelector({j| .bar-$(b)|j})
-          //          |> unwrapElement
-          //          |> getClassList
-          //          |> toggleClasses("current", "compare");
+            let compare =
+              document |> Document.querySelector({j| .bar-$(b)|j});
 
-          (true, [b, ...snd(try_swap([a, ...tail]))]);
-        } else {
-          //          document
-          //          |> Document.querySelector(".current")
-          //          |> unwrapElement
-          //          |> getClassList
-          //          |> toggleClasses("current", "compared");
+            currentRef := current;
+            compareRef := compare;
 
-          let (swapped, newlist) = try_swap([b, ...tail]);
-          (swapped, [a, ...newlist]);
+            current
+            |> unwrapElement
+            |> Element.setAttribute("style", "background-color: red");
+
+            compare
+            |> unwrapElement
+            |> Element.setAttribute("style", "background-color: green");
+
+            (true, [b, ...snd(try_swap([a, ...tail]))]);
+          } else {
+            //            currentRef^ |> unwrapElement |> Element.removeAttribute("style");
+            let (swapped, newlist) = try_swap([b, ...tail]);
+            (swapped, [a, ...newlist]);
+          };
         };
-
+    //          |> unwrapElement
     try_swap(l);
   };
 
-  sleep(50)
+  sleep(1000)
   |> Js.Promise.then_(value => {
        ben := true;
        let (swapped, newlist) = r_bubble_sort(state.list);

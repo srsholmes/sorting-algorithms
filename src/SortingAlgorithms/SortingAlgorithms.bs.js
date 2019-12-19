@@ -65,6 +65,10 @@ function reducer(state, action) {
 
 var ben = /* record */[/* contents */false];
 
+var currentRef = /* record */[/* contents */Caml_option.nullable_to_opt(document.querySelector("body"))];
+
+var compareRef = /* record */[/* contents */Caml_option.nullable_to_opt(document.querySelector("body"))];
+
 function unwrapElement(param) {
   if (param !== undefined) {
     return Caml_option.valFromOption(param);
@@ -76,16 +80,6 @@ function unwrapElement(param) {
   }
 }
 
-function getClassList(item) {
-  return item.classList;
-}
-
-function toggleClasses(newClass, oldClass, classList) {
-  console.log(classList);
-  classList.add(newClass);
-  return /* () */0;
-}
-
 function myFunc(state, dispatch) {
   var r_bubble_sort = function (l) {
     var try_swap = function (param) {
@@ -95,9 +89,17 @@ function myFunc(state, dispatch) {
         if (match) {
           var tail = match[1];
           var b = match[0];
+          unwrapElement(compareRef[0]).removeAttribute("style");
           if (Caml_obj.caml_greaterthan(a, b) && ben[0]) {
             ben[0] = false;
-            toggleClasses("current", "compared", Caml_option.nullable_to_opt(document.querySelector(" .bar-" + (String(a) + ""))).classList);
+            var current = document.querySelector(" .bar-" + (String(a) + ""));
+            var current$1 = (current == null) ? undefined : Caml_option.some(current);
+            var compare = document.querySelector(" .bar-" + (String(b) + ""));
+            var compare$1 = (compare == null) ? undefined : Caml_option.some(compare);
+            currentRef[0] = current$1;
+            compareRef[0] = compare$1;
+            unwrapElement(current$1).setAttribute("style", "background-color: red");
+            unwrapElement(compare$1).setAttribute("style", "background-color: green");
             return /* tuple */[
                     true,
                     /* :: */[
@@ -139,7 +141,7 @@ function myFunc(state, dispatch) {
     };
     return try_swap(l);
   };
-  sleep(50).then((function (value) {
+  sleep(1000).then((function (value) {
           ben[0] = true;
           var match = r_bubble_sort(state[/* list */0]);
           if (!match[0] && state[/* sorting */2] === true) {
@@ -206,9 +208,9 @@ exports.sleep = sleep;
 exports.initialState = initialState;
 exports.reducer = reducer;
 exports.ben = ben;
+exports.currentRef = currentRef;
+exports.compareRef = compareRef;
 exports.unwrapElement = unwrapElement;
-exports.getClassList = getClassList;
-exports.toggleClasses = toggleClasses;
 exports.myFunc = myFunc;
 exports.make = make;
-/* react Not a pure module */
+/* currentRef Not a pure module */
