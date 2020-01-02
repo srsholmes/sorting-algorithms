@@ -141,7 +141,7 @@ function myFunc(state, dispatch) {
     };
     return try_swap(l);
   };
-  sleep(1000).then((function (value) {
+  sleep(100).then((function (value) {
           ben[0] = true;
           var match = r_bubble_sort(state[/* list */0]);
           if (!match[0] && state[/* sorting */2] === true) {
@@ -182,7 +182,7 @@ function SortingAlgorithms(Props) {
                       className: Styles$ReasonReactExamples.Styles.value(length) + (" bar bar-" + String(length))
                     });
         }), state[/* list */0]);
-  return React.createElement("div", undefined, React.createElement("p", undefined, "Hello!"), React.createElement("p", undefined, String(listLength)), React.createElement("h1", undefined, "Controls"), React.createElement("p", undefined, "Length of list to sort:"), React.createElement("input", {
+  return React.createElement("div", undefined, React.createElement("h1", undefined, "Controls"), React.createElement("p", undefined, "Number of items to sort:"), React.createElement("p", undefined, String(listLength)), React.createElement("input", {
                   type: "range",
                   value: String(listLength),
                   onChange: (function ($$event) {

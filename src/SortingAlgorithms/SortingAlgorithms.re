@@ -52,20 +52,17 @@ let myFunc = (state, dispatch) => {
       fun
       | [] => {
           (
-            //          currentRef^ |> unwrapElement |> Element.removeAttribute("style");
             false,
             [],
           );
         }
       | [a] => {
           (
-            //          currentRef^ |> unwrapElement |> Element.removeAttribute("style");
             false,
             [a],
           );
         }
       | [a, b, ...tail] => {
-          //          currentRef^ |> unwrapElement |> Element.removeAttribute("style");
           compareRef^ |> unwrapElement |> Element.removeAttribute("style");
 
           if (a > b && ben^) {
@@ -89,16 +86,14 @@ let myFunc = (state, dispatch) => {
 
             (true, [b, ...snd(try_swap([a, ...tail]))]);
           } else {
-            //            currentRef^ |> unwrapElement |> Element.removeAttribute("style");
             let (swapped, newlist) = try_swap([b, ...tail]);
             (swapped, [a, ...newlist]);
           };
         };
-    //          |> unwrapElement
     try_swap(l);
   };
 
-  sleep(1000)
+  sleep(100)
   |> Js.Promise.then_(value => {
        ben := true;
        let (swapped, newlist) = r_bubble_sort(state.list);
@@ -149,10 +144,9 @@ let make = () => {
   let bars = List.map(x => valueBar(~length=x), state.list);
 
   <div>
-    <p> {React.string("Hello!")} </p>
-    <p> {React.string(string_of_int(listLength))} </p>
     <h1> {React.string("Controls")} </h1>
-    <p> {React.string("Length of list to sort:")} </p>
+    <p> {React.string("Number of items to sort:")} </p>
+    <p> {React.string(string_of_int(listLength))} </p>
     <input
       value={string_of_int(listLength)}
       onChange={event => {
